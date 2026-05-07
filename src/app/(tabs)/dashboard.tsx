@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   secondaryAction: {
-    backgroundColor: '#EFF3F1',
+    backgroundColor: palette.mist,
     borderRadius: radius.full,
     minHeight: 50,
     alignItems: 'center',

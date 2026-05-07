@@ -61,11 +61,10 @@ export default function LoginScreen() {
       style={styles.keyboard}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <View style={styles.hero}>
-          <Text style={styles.eyebrow}>EXPO + TYPESCRIPT</Text>
+          <Text style={styles.eyebrow}>ATTENDANCE SYSTEM</Text>
           <Text style={styles.title}>Idara-Mohalla Attendance</Text>
           <Text style={styles.subtitle}>
-            This mobile app connects to your existing PHP system and uses the current network
-            server at {mobileConfig.networkHost}.
+            Sign in to record and track attendance across events in your assigned Idara and Mohalla scope.
           </Text>
         </View>
 
