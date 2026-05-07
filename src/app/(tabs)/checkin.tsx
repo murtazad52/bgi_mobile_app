@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 
+import { LocationMap } from '@/components/location-map';
 import { NoticeBanner } from '@/components/notice-banner';
 import { ScreenShell } from '@/components/screen-shell';
 import { getCheckinOptions, haversineDistance, submitCheckin } from '@/lib/api/checkin';
@@ -260,6 +261,17 @@ export default function CheckinScreen() {
               />
             )}
           </View>
+        ) : null}
+
+        {selectedEvent?.latitude != null && selectedEvent.longitude != null ? (
+          <LocationMap
+            eventLat={selectedEvent.latitude}
+            eventLng={selectedEvent.longitude}
+            eventRadius={selectedEvent.radiusMeters ?? 200}
+            eventName={selectedEvent.eventName}
+            userLat={locationState.status === 'ready' ? locationState.lat : undefined}
+            userLng={locationState.status === 'ready' ? locationState.lng : undefined}
+          />
         ) : null}
 
         {isOutsideGeofence ? (
