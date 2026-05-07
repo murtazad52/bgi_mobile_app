@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "Idara-Mohalla Attendance Mobile",
+    "slug": "idara-mohalla-attendance-mobile",
+    "version": "1.0.6",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "idaramohallaattendance",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "icon": "./assets/expo.icon"
+    },
+    "android": {
+      "package": "com.idaramohalla.attendance",
+      "versionCode": 7,
+      "usesCleartextTraffic": true,
+      "adaptiveIcon": {
+        "backgroundColor": "#F3E7D5",
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F3E7D5",
+          "android": {
+            "image": "./assets/images/splash-icon.png",
+            "imageWidth": 180
+          }
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiBaseUrl": "http://100.96.1.18/bgi_attendance_system"
+    }
+  }
+}
