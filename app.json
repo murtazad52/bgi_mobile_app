@@ -2,7 +2,7 @@
   "expo": {
     "name": "Idara-Mohalla Attendance Mobile",
     "slug": "idara-mohalla-attendance-mobile",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "idaramohallaattendance",
@@ -12,7 +12,7 @@
     },
     "android": {
       "package": "com.idaramohalla.attendance",
-      "versionCode": 7,
+      "versionCode": 8,
       "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#F3E7D5",
@@ -41,7 +41,11 @@
       "typedRoutes": true
     },
     "extra": {
-      "apiBaseUrl": "http://62.215.143.149/bgi_attendance_system"
+      "apiBaseUrl": "http://62.215.143.149/bgi_attendance_system",
+      "router": {},
+      "eas": {
+        "projectId": "fa6b70b1-f20c-4b5d-9202-d4ff5c5d05f5"
+      }
     }
   }
 }
