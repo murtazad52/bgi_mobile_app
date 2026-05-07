@@ -53,6 +53,17 @@ export default function DashboardScreen() {
             <Text style={styles.primaryActionText}>Open Attendance</Text>
           </Pressable>
         </View>
+      ) : session?.role === 'member' ? (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Self Check-In</Text>
+          <Text style={styles.cardBody}>
+            Check in to an upcoming event using your GPS location. Remote check-ins are flagged for
+            admin review.
+          </Text>
+          <Pressable onPress={() => router.push('/(tabs)/checkin')} style={styles.primaryAction}>
+            <Text style={styles.primaryActionText}>Open Check-In</Text>
+          </Pressable>
+        </View>
       ) : (
         <NoticeBanner
           title="Attendance not available"

@@ -51,6 +51,9 @@ export interface EventPreview {
   mohalla: string;
   recordedCount?: number;
   userStatus?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  radiusMeters?: number | null;
 }
 
 export interface DashboardResponse {
@@ -73,6 +76,8 @@ export interface RecordAttendanceInput {
   itsId: string;
   status: string;
   remark: string;
+  lat?: number;
+  lng?: number;
 }
 
 export interface AttendanceRecordResponse {
@@ -81,6 +86,29 @@ export interface AttendanceRecordResponse {
   recordedStatus: string;
   eventName: string;
   memberName: string;
+  isRemote?: boolean;
+  distanceMeters?: number | null;
+}
+
+export interface CheckinOptionsResponse {
+  ok: true;
+  user: SessionUser;
+  events: EventPreview[];
+}
+
+export interface CheckinInput {
+  eventId: number;
+  lat?: number;
+  lng?: number;
+}
+
+export interface CheckinResponse {
+  ok: true;
+  message: string;
+  recordedStatus: string;
+  eventName: string;
+  isRemote: boolean;
+  distanceMeters: number | null;
 }
 
 export interface ReportsSummary {

@@ -2,7 +2,7 @@
   "expo": {
     "name": "Idara-Mohalla Attendance Mobile",
     "slug": "idara-mohalla-attendance-mobile",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "idaramohallaattendance",
@@ -12,7 +12,7 @@
     },
     "android": {
       "package": "com.idaramohalla.attendance",
-      "versionCode": 9,
+      "versionCode": 10,
       "adaptiveIcon": {
         "backgroundColor": "#F3E7D5",
         "foregroundImage": "./assets/images/android-icon-foreground.png"
@@ -25,6 +25,12 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow Attendance App to access your location to verify event check-ins."
+        }
+      ],
       [
         "expo-splash-screen",
         {

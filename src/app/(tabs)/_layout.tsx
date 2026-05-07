@@ -19,12 +19,8 @@ export default function TabsLayout() {
         animation: 'slide_from_right',
       }}>
       <Stack.Screen name="dashboard" options={{ title: 'Dashboard' }} />
-      <Stack.Screen
-        name="attendance"
-        options={{
-          title: 'Attendance',
-        }}
-      />
+      <Stack.Screen name="attendance" options={{ title: 'Attendance' }} />
+      <Stack.Screen name="checkin" options={{ title: 'Check In' }} />
     </Stack>
   );
 }
