@@ -40,13 +40,13 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
     if (error instanceof Error && error.name === 'AbortError') {
       throw new ApiError(
-        'The mobile app could not reach the server in time. Check that 100.96.1.18 is reachable on the same network.',
+        'The mobile app could not reach the server in time. Check your internet connection and try again.',
         0
       );
     }
 
     throw new ApiError(
-      'The mobile app could not connect to the server. Check that 100.96.1.18 is reachable and HTTP access is allowed on the device.',
+      'The mobile app could not connect to the server. Check your internet connection and that the server is reachable.',
       0,
       error
     );
