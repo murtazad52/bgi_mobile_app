@@ -6,8 +6,8 @@ const extra = (Constants.expoConfig?.extra ?? {}) as {
 
 export const mobileConfig = {
   appName: 'Idara-Mohalla Attendance Mobile',
-  networkHost: '62.215.143.149',
-  apiBaseUrl: extra.apiBaseUrl ?? 'http://62.215.143.149/bgi_attendance_system',
+  networkHost: 'badriattendance.duckdns.org',
+  apiBaseUrl: extra.apiBaseUrl ?? 'https://badriattendance.duckdns.org/bgi_attendance_system',
 };
 
 export const mobileApiBaseUrl = `${mobileConfig.apiBaseUrl}/api/mobile`;
