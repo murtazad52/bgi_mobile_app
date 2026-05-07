@@ -12,7 +12,6 @@ import {
   View,
 } from 'react-native';
 
-import { mobileConfig } from '@/lib/config';
 import { useSession } from '@/lib/session/session-context';
 import { palette, radius, spacing } from '@/lib/theme';
 
@@ -132,10 +131,6 @@ export default function LoginScreen() {
             )}
           </Pressable>
 
-          <View style={styles.footerNote}>
-            <Text style={styles.footerLabel}>Backend URL</Text>
-            <Text style={styles.footerValue}>{mobileConfig.apiBaseUrl}</Text>
-          </View>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -250,20 +245,5 @@ const styles = StyleSheet.create({
     color: palette.ink,
     fontSize: 16,
     fontWeight: '900',
-  },
-  footerNote: {
-    gap: spacing.xs,
-    paddingTop: spacing.xs,
-  },
-  footerLabel: {
-    color: palette.muted,
-    fontSize: 12,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  footerValue: {
-    color: palette.ink,
-    fontSize: 13,
   },
 });
