@@ -7,7 +7,7 @@ import { palette } from '@/lib/theme';
 export default function TabsLayout() {
   const { session, isBooting } = useSession();
 
-  if (!isBooting && !session) {
+  if (!isBooting && (!session || session.mustChangePassword)) {
     return <Redirect href="/login" />;
   }
 

@@ -1,12 +1,20 @@
 import React, { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 
-import { getSessionRequest, signInRequest, signOutRequest } from '@/lib/api/auth';
-import type { LoginInput, SessionUser } from '@/lib/api/types';
+import {
+  changePasswordRequest,
+  getSessionRequest,
+  signInRequest,
+  signOutRequest,
+  verifyTwoFactorRequest,
+} from '@/lib/api/auth';
+import type { LoginInput, LoginResponse, SessionUser } from '@/lib/api/types';
 
 type SessionContextValue = {
   session: SessionUser | null;
   isBooting: boolean;
-  signIn: (payload: LoginInput) => Promise<SessionUser>;
+  signIn: (payload: LoginInput) => Promise<LoginResponse>;
+  verifyTwoFactor: (code: string) => Promise<SessionUser>;
+  changePassword: (newPassword: string, confirmPassword: string) => Promise<SessionUser>;
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
 };
@@ -42,8 +50,23 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  async function signIn(payload: LoginInput) {
+  async function signIn(payload: LoginInput): Promise<LoginResponse> {
     const response = await signInRequest(payload);
+    // A 2FA-required response has no user yet — keep the session unset.
+    if (!('requires2fa' in response)) {
+      setSession(response.user);
+    }
+    return response;
+  }
+
+  async function verifyTwoFactor(code: string) {
+    const response = await verifyTwoFactorRequest(code);
+    setSession(response.user);
+    return response.user;
+  }
+
+  async function changePassword(newPassword: string, confirmPassword: string) {
+    const response = await changePasswordRequest(newPassword, confirmPassword);
     setSession(response.user);
     return response.user;
   }
@@ -62,7 +85,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <SessionContext.Provider value={{ session, isBooting, signIn, signOut, refreshSession }}>
+    <SessionContext.Provider
+      value={{ session, isBooting, signIn, verifyTwoFactor, changePassword, signOut, refreshSession }}>
       {children}
     </SessionContext.Provider>
   );

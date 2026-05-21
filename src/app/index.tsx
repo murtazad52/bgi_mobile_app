@@ -21,7 +21,8 @@ export default function IndexScreen() {
     );
   }
 
-  return <Redirect href={session ? '/(tabs)/dashboard' : '/login'} />;
+  const canEnterApp = session && !session.mustChangePassword;
+  return <Redirect href={canEnterApp ? '/(tabs)/dashboard' : '/login'} />;
 }
 
 const styles = StyleSheet.create({

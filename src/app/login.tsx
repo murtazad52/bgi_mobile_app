@@ -19,32 +19,49 @@ type LoginType = 'admin' | 'member';
 
 export default function LoginScreen() {
   const router = useRouter();
-  const { session, signIn, isBooting } = useSession();
+  const { session, signIn, verifyTwoFactor, changePassword, isBooting } = useSession();
+
   const [loginType, setLoginType] = useState<LoginType>('admin');
   const [identifier, setIdentifier] = useState('');
   const [secret, setSecret] = useState('');
+
+  const [awaiting2fa, setAwaiting2fa] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
   const [errorMessage, setErrorMessage] = useState('');
+  const [noticeMessage, setNoticeMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  if (!isBooting && session) {
+  // Member with a pending password change: signed in but flagged.
+  const needsPasswordChange = Boolean(session?.mustChangePassword);
+
+  if (!isBooting && session && !needsPasswordChange) {
     return <Redirect href="/(tabs)/dashboard" />;
   }
 
-  async function handleSubmit() {
-    if (isSubmitting) {
-      return;
-    }
-
+  async function handleLogin() {
+    if (isSubmitting) return;
     setErrorMessage('');
+    setNoticeMessage('');
     setIsSubmitting(true);
 
     try {
-      await signIn({
+      const response = await signIn({
         loginType,
         identifier: identifier.trim(),
         secret: secret.trim(),
       });
-      router.replace('/(tabs)/dashboard');
+
+      if ('requires2fa' in response) {
+        setAwaiting2fa(true);
+        setNoticeMessage(response.message ?? 'Enter the 6-digit code from your authenticator app.');
+      } else if (!response.user.mustChangePassword) {
+        router.replace('/(tabs)/dashboard');
+      }
+      // mustChangePassword: session now holds the flag → screen switches automatically.
     } catch (error) {
       setErrorMessage(error instanceof Error ? error.message : 'Unable to sign in right now.');
     } finally {
@@ -52,8 +69,163 @@ export default function LoginScreen() {
     }
   }
 
+  async function handleVerifyTwoFactor() {
+    if (isSubmitting) return;
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    try {
+      await verifyTwoFactor(twoFactorCode.trim());
+      router.replace('/(tabs)/dashboard');
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Could not verify the code.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleChangePassword() {
+    if (isSubmitting) return;
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    try {
+      await changePassword(newPassword, confirmPassword);
+      router.replace('/(tabs)/dashboard');
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : 'Could not update your password.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  function resetToLogin() {
+    setAwaiting2fa(false);
+    setTwoFactorCode('');
+    setErrorMessage('');
+    setNoticeMessage('');
+  }
+
   const isMember = loginType === 'member';
 
+  // ── Forced password change (first login / admin reset / OTP reset) ──────────
+  if (needsPasswordChange) {
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.keyboard}>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <View style={styles.hero}>
+            <Text style={styles.eyebrow}>SECURITY</Text>
+            <Text style={styles.title}>Set a New Password</Text>
+            <Text style={styles.subtitle}>
+              For your security, please set a new password before continuing.
+            </Text>
+          </View>
+
+          <View style={styles.card}>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>New Password</Text>
+              <TextInput
+                value={newPassword}
+                onChangeText={setNewPassword}
+                placeholder="Enter a new password"
+                placeholderTextColor={palette.muted}
+                secureTextEntry
+                autoCapitalize="none"
+                style={styles.input}
+              />
+            </View>
+
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Confirm New Password</Text>
+              <TextInput
+                value={confirmPassword}
+                onChangeText={setConfirmPassword}
+                placeholder="Re-enter the new password"
+                placeholderTextColor={palette.muted}
+                secureTextEntry
+                autoCapitalize="none"
+                style={styles.input}
+              />
+            </View>
+
+            <Text style={styles.helper}>
+              At least 8 characters, including a letter and a number.
+            </Text>
+
+            {errorMessage ? (
+              <View style={styles.errorBox}>
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            ) : null}
+
+            <Pressable onPress={handleChangePassword} style={styles.submitButton} disabled={isSubmitting}>
+              {isSubmitting ? (
+                <ActivityIndicator color={palette.surface} />
+              ) : (
+                <Text style={styles.submitText}>Update Password</Text>
+              )}
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    );
+  }
+
+  // ── Two-factor verification (admin accounts with 2FA enabled) ───────────────
+  if (awaiting2fa) {
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.keyboard}>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+          <View style={styles.hero}>
+            <Text style={styles.eyebrow}>TWO-FACTOR AUTH</Text>
+            <Text style={styles.title}>Verify Your Identity</Text>
+            <Text style={styles.subtitle}>
+              Enter the 6-digit code from your authenticator app to finish signing in.
+            </Text>
+          </View>
+
+          <View style={styles.card}>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Authentication Code</Text>
+              <TextInput
+                value={twoFactorCode}
+                onChangeText={setTwoFactorCode}
+                placeholder="000000"
+                placeholderTextColor={palette.muted}
+                keyboardType="number-pad"
+                maxLength={6}
+                style={[styles.input, styles.codeInput]}
+              />
+            </View>
+
+            {errorMessage ? (
+              <View style={styles.errorBox}>
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              </View>
+            ) : null}
+
+            <Pressable onPress={handleVerifyTwoFactor} style={styles.submitButton} disabled={isSubmitting}>
+              {isSubmitting ? (
+                <ActivityIndicator color={palette.surface} />
+              ) : (
+                <Text style={styles.submitText}>Verify &amp; Sign In</Text>
+              )}
+            </Pressable>
+
+            <Pressable onPress={resetToLogin} style={styles.linkButton}>
+              <Text style={styles.linkText}>&larr; Back to sign in</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    );
+  }
+
+  // ── Normal credentials login ────────────────────────────────────────────────
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -99,13 +271,15 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>{isMember ? 'Phone Number' : 'Password'}</Text>
+            <Text style={styles.label}>Password</Text>
             <TextInput
               value={secret}
               onChangeText={setSecret}
-              placeholder={isMember ? 'Enter registered phone number' : 'Enter password'}
+              placeholder={
+                isMember ? 'First time? Enter your registered phone number' : 'Enter password'
+              }
               placeholderTextColor={palette.muted}
-              secureTextEntry={!isMember}
+              secureTextEntry
               autoCapitalize="none"
               style={styles.input}
             />
@@ -113,9 +287,15 @@ export default function LoginScreen() {
 
           <Text style={styles.helper}>
             {isMember
-              ? 'Members sign in using ITS ID and the saved phone number from the current system.'
+              ? 'Members sign in with their ITS ID and password. On first login, use your registered phone number, then set a new password.'
               : 'Admins keep the same roles, Idara, and Mohalla access already assigned in the PHP app.'}
           </Text>
+
+          {noticeMessage ? (
+            <View style={styles.noticeBox}>
+              <Text style={styles.noticeText}>{noticeMessage}</Text>
+            </View>
+          ) : null}
 
           {errorMessage ? (
             <View style={styles.errorBox}>
@@ -123,7 +303,7 @@ export default function LoginScreen() {
             </View>
           ) : null}
 
-          <Pressable onPress={handleSubmit} style={styles.submitButton} disabled={isSubmitting}>
+          <Pressable onPress={handleLogin} style={styles.submitButton} disabled={isSubmitting}>
             {isSubmitting ? (
               <ActivityIndicator color={palette.surface} />
             ) : (
@@ -131,6 +311,11 @@ export default function LoginScreen() {
             )}
           </Pressable>
 
+          {isMember ? (
+            <Text style={styles.forgotHint}>
+              Forgot your password? Reset it from the web portal at badriattendance.duckdns.org.
+            </Text>
+          ) : null}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -218,10 +403,22 @@ const styles = StyleSheet.create({
     color: palette.ink,
     fontSize: 16,
   },
+  codeInput: {
+    textAlign: 'center',
+    fontSize: 24,
+    fontWeight: '800',
+    letterSpacing: 8,
+  },
   helper: {
     color: palette.muted,
     fontSize: 13,
     lineHeight: 20,
+  },
+  forgotHint: {
+    color: palette.muted,
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: 'center',
   },
   errorBox: {
     backgroundColor: '#FCE8E4',
@@ -230,6 +427,16 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: palette.danger,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  noticeBox: {
+    backgroundColor: '#FFF4DC',
+    borderRadius: radius.md,
+    padding: spacing.md,
+  },
+  noticeText: {
+    color: '#7A5B12',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -245,5 +452,14 @@ const styles = StyleSheet.create({
     color: palette.ink,
     fontSize: 16,
     fontWeight: '900',
+  },
+  linkButton: {
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  linkText: {
+    color: palette.pine,
+    fontSize: 14,
+    fontWeight: '700',
   },
 });

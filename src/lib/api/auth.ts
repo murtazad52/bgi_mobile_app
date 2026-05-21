@@ -1,10 +1,29 @@
 import { apiRequest } from '@/lib/api/client';
-import type { LoginInput, SessionResponse } from '@/lib/api/types';
+import type {
+  ChangePasswordResponse,
+  LoginInput,
+  LoginResponse,
+  SessionResponse,
+} from '@/lib/api/types';
 
 export function signInRequest(payload: LoginInput) {
-  return apiRequest<SessionResponse>('login.php', {
+  return apiRequest<LoginResponse>('login.php', {
     method: 'POST',
     body: payload,
+  });
+}
+
+export function verifyTwoFactorRequest(code: string) {
+  return apiRequest<SessionResponse>('verify_2fa.php', {
+    method: 'POST',
+    body: { code },
+  });
+}
+
+export function changePasswordRequest(newPassword: string, confirmPassword: string) {
+  return apiRequest<ChangePasswordResponse>('change_password.php', {
+    method: 'POST',
+    body: { newPassword, confirmPassword },
   });
 }
 

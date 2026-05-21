@@ -21,6 +21,7 @@ export interface SessionUser {
   canTakeAttendance: boolean;
   canViewReports: boolean;
   homePath: string;
+  mustChangePassword?: boolean;
 }
 
 export interface LoginInput {
@@ -31,6 +32,26 @@ export interface LoginInput {
 
 export interface SessionResponse {
   ok: true;
+  user: SessionUser;
+}
+
+export interface LoginSuccessResponse {
+  ok: true;
+  user: SessionUser;
+  mustChangePassword?: boolean;
+}
+
+export interface TwoFactorRequiredResponse {
+  ok: true;
+  requires2fa: true;
+  message?: string;
+}
+
+export type LoginResponse = LoginSuccessResponse | TwoFactorRequiredResponse;
+
+export interface ChangePasswordResponse {
+  ok: true;
+  message: string;
   user: SessionUser;
 }
 
